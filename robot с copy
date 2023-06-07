@@ -96,7 +96,7 @@ robot_img = pygame.image.load(os.path.join(img_folder, 'робот1.png')).conve
 all_sprites = pygame.sprite.Group()
 robot = Robot(x1, y1, 0, 0, [])
 robot2 = Robot2()
-robot3 = copy.deepcopy(robot)
+robot3 = copy.copy(robot)
 robot3.x1 = 50
 robot3.y1 = 50
 all_sprites.add(robot)
