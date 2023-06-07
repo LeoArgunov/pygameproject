@@ -1,0 +1,168 @@
+import pygame
+import os
+import random
+import time
+import copy
+
+game_folder = os.path.dirname(__file__)
+img_folder = os.path.join(game_folder, 'pygamegame')
+
+WIDTH = 400
+HEIGHT = 400
+FPS = 40
+
+x1 = 0
+y1 = 0
+step = 15
+flag_assert = 0
+
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (135, 206, 235)
+
+
+
+class Robot(pygame.sprite.Sprite):
+    def __init__(self, x1, y1, res, res1, list_):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = robot_img
+        self.image.set_colorkey(WHITE)
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x1, y1)
+        self.res = res
+        self.res1 = res1
+        self.list_ = list_
+
+    def move(self, x1, y1):
+        if self.rect.left < 0:
+            self.rect.left = 0
+        elif self.rect.right > WIDTH:
+            self.rect.right = WIDTH
+        elif self.rect.bottom > HEIGHT:
+            self.rect.bottom = HEIGHT
+        elif self.rect.top < 0:
+            self.rect.top = 0
+        else:
+            self.rect.x += x1
+            self.rect.y += y1
+            if self.rect.left < 0:
+                self.res += 0
+                self.res1 += 0
+            elif self.rect.right > WIDTH:
+                self.res += 0
+                self.res1 += 0
+            elif self.rect.bottom > HEIGHT:
+                self.res += 0
+                self.res1 += 0
+            elif self.rect.top < 0:
+                self.res += 0
+                self.res1 += 0
+            else:
+                self.res += x1
+                self.res1 += y1
+            print(self.res, self.res1)
+            
+    def path(self, res, res1):
+        self.list_.extend([(res, res1)])
+
+
+class Robot2(Robot):
+    def __init__(self):
+        super().__init__(x1, y1, 0, 0, [])
+
+    def move2(self):
+        self.rect.x = random.randint(0, 380)
+        self.rect.y = random.randint(0, 380)
+        if self.rect.left < 0:
+            self.rect.left = 0
+        elif self.rect.right > WIDTH:
+            self.rect.right = WIDTH
+        elif self.rect.bottom > HEIGHT:
+            self.rect.bottom = HEIGHT
+        elif self.rect.top < 0:
+            self.rect.top = 0
+        
+        
+
+pygame.init()
+screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
+pygame.display.set_caption("Robot")
+clock = pygame.time.Clock()
+
+robot_img = pygame.image.load(os.path.join(img_folder, 'робот1.png')).convert()
+
+all_sprites = pygame.sprite.Group()
+robot = Robot(x1, y1, 0, 0, [])
+robot2 = Robot2()
+robot3 = copy.deepcopy(robot)
+robot3.x1 = 50
+robot3.y1 = 50
+all_sprites.add(robot)
+all_sprites.add(robot2)
+all_sprites.add(robot3)
+
+flag = 0
+running = True
+while running:
+    clock.tick(FPS)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_1:
+                flag = 1
+                robot2.list_ = []
+                
+            elif event.key == pygame.K_RIGHT and flag == 1:
+                robot.move(step, 0)
+                robot.path(robot.res, robot.res1)
+            elif event.key == pygame.K_LEFT and flag == 1:
+                robot.move(-step, 0)
+                robot.path(robot.res, robot.res1)
+            elif event.key == pygame.K_UP and flag == 1:
+                robot.move(0, -step)
+                robot.path(robot.res, robot.res1)
+            elif event.key == pygame.K_DOWN and flag == 1:
+                robot.move(0, step)
+                robot.path(robot.res, robot.res1)
+            elif event.key == pygame.K_w and flag == 1:
+                print(f'Отчитываюсь о пройденном пути: {robot.list_}')
+                robot.list_ = []
+                
+            elif event.key == pygame.K_2:
+                flag = 2
+                robot.list_ = []
+                
+            elif event.key == pygame.K_RIGHT and flag == 2:
+                robot2.move(step, 0)
+                robot2.path(robot2.res, robot2.res1)
+            elif event.key == pygame.K_LEFT and flag == 2:
+                robot2.move(-step, 0)
+                robot2.path(robot2.res, robot2.res1)
+            elif event.key == pygame.K_UP and flag == 2:
+                robot2.move(0, -step)
+                robot2.path(robot2.res, robot2.res1)
+            elif event.key == pygame.K_DOWN and flag == 2:
+                robot2.move(0, step)
+                robot2.path(robot2.res, robot2.res1)
+            elif event.key == pygame.K_w and flag == 2:
+                print(f'Отчитываюсь о пройденном пути: {robot2.list_}')
+                robot2.list_ = []
+            elif event.key == pygame.K_t and flag == 2:
+                try:
+                    flag_assert = 1
+                    assert flag_assert == 0, ''
+                except AssertionError:
+                    print('Произведена телепортация! Теперь ваши координаты выводятся неверно')
+                    robot2.move2()
+                
+    all_sprites.update()
+
+
+    screen.fill(BLUE)
+    all_sprites.draw(screen)
+    pygame.display.flip()
+
+pygame.quit()
